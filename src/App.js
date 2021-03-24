@@ -3,38 +3,32 @@ import HomePage from "./Pages/HomePage/HomePage-Component";
 import {Route , Switch }  from "react-router-dom"
 import ShopPage from "./Pages/shop/Shop-Component";
 import "./App.css";
+import { connect } from "react-redux";
 import Header from "../src/Components/Header/Header-Component";
 import SignInAndSignUp from "./Pages/Sign-In-and-Sign-up/Sign-In-and-Sign-up-component";
 import {auth , createUserProfileDocument} from "./firebase/firebase.utils";
+import { setCurrentUser } from "./redux/user/UserAction";
+
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currentAuth:null
-    }
-  }
+ 
 
   unsubcribefromauth = null;
 
   componentDidMount() {
-     this.unsubcribefromauth = auth.onAuthStateChanged( async userAuth => {
+      const {setCurrentUser} = this.props;
+      this.unsubcribefromauth = auth.onAuthStateChanged( async userAuth => {
         if(userAuth) {
           const userRef  = await createUserProfileDocument(userAuth);
           userRef.onSnapshot( snapshot => {
-              this.setState({
-                currentAuth: {
+               setCurrentUser({
                   id: snapshot.id,
                   ...snapshot.data()
-                }
-              }, () => {
-                console.log(this.state)
-              })
-          }) 
+                });
+              });
         }
 
-        this.setState({currentAuth:userAuth});
+        setCurrentUser(userAuth);
     });    
   }
 
@@ -46,7 +40,7 @@ class App extends React.Component {
   render() {
     return (
       <div >
-      <Header currentUser={this.state.currentAuth} />
+      <Header  />
         <Switch>
             <Route exact path="/" component={HomePage}  />
             <Route exact path="/shop" component={ShopPage}  />
@@ -57,4 +51,8 @@ class App extends React.Component {
   }
 }
 
-export default App;
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user))
+})
+
+export default connect(null,mapDispatchToProps)(App);

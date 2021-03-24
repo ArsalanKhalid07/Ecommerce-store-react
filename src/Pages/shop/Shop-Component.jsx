@@ -1,4 +1,4 @@
-import React, {Component } from "react";
+import React, { Component } from "react";
 import ShopData from "./ShopData";
 import  CollectionPreview from "../../Components/Collection-Preview/Collection-Preview-Component" 
 class ShopPage extends Component {
